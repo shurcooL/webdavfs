@@ -2,6 +2,7 @@
 package vfsutil
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -52,4 +53,50 @@ func WriteFile(fs webdav.FileSystem, name string, data []byte, perm os.FileMode)
 		err = err1
 	}
 	return err
+}
+
+// MkdirAll creates a directory named path, along with any necessary parents,
+// and returns nil, or else returns an error. The permission bits perm are used
+// for all directories that MkdirAll creates. If path is already a directory,
+// MkdirAll does nothing and returns nil.
+func MkdirAll(fs webdav.FileSystem, path string, perm os.FileMode) error {
+	// Fast path: if we can tell whether path is a directory or file, stop with success or error.
+	dir, err := fs.Stat(path)
+	if err == nil {
+		if dir.IsDir() {
+			return nil
+		}
+		return &os.PathError{Op: "mkdir", Path: path, Err: fmt.Errorf("not a directory")}
+	}
+
+	// Slow path: make sure parent exists and then call Mkdir for path.
+	i := len(path)
+	for i > 0 && path[i-1] == '/' { // Skip trailing path separator.
+		i--
+	}
+
+	j := i
+	for j > 0 && path[j-1] != '/' { // Scan backward over element.
+		j--
+	}
+
+	if j > 1 {
+		// Create parent.
+		err = MkdirAll(fs, path[0:j-1], perm)
+		if err != nil {
+			return err
+		}
+	}
+
+	// Parent now exists; invoke Mkdir and use its result.
+	err = fs.Mkdir(path, perm)
+	if err != nil {
+		// Handle arguments like "foo/." by double-checking that directory doesn't exist.
+		dir, err1 := fs.Stat(path)
+		if err1 == nil && dir.IsDir() {
+			return nil
+		}
+		return err
+	}
+	return nil
 }

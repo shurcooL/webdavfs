@@ -2,6 +2,7 @@
 package vfsutil
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -15,7 +16,7 @@ import (
 // File can be used for I/O; the associated file descriptor has mode O_RDWR.
 // If there is an error, it will be of type *PathError.
 func Create(fs webdav.FileSystem, name string) (webdav.File, error) {
-	return fs.OpenFile(name, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
+	return fs.OpenFile(context.Background(), name, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
 }
 
 // Open opens the named file for reading.  If successful, methods on
@@ -23,13 +24,13 @@ func Create(fs webdav.FileSystem, name string) (webdav.File, error) {
 // descriptor has mode O_RDONLY.
 // If there is an error, it will be of type *PathError.
 func Open(fs webdav.FileSystem, name string) (http.File, error) {
-	return fs.OpenFile(name, os.O_RDONLY, 0)
+	return fs.OpenFile(context.Background(), name, os.O_RDONLY, 0)
 }
 
 // ReadDir reads the contents of the directory associated with file and
 // returns a slice of FileInfo values in directory order.
 func ReadDir(fs webdav.FileSystem, name string) ([]os.FileInfo, error) {
-	f, err := fs.OpenFile(name, os.O_RDONLY, 0)
+	f, err := fs.OpenFile(context.Background(), name, os.O_RDONLY, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +42,7 @@ func ReadDir(fs webdav.FileSystem, name string) ([]os.FileInfo, error) {
 // If the file does not exist, WriteFile creates it with permissions perm;
 // otherwise WriteFile truncates it before writing.
 func WriteFile(fs webdav.FileSystem, name string, data []byte, perm os.FileMode) error {
-	f, err := fs.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, perm)
+	f, err := fs.OpenFile(context.Background(), name, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, perm)
 	if err != nil {
 		return err
 	}
@@ -61,7 +62,7 @@ func WriteFile(fs webdav.FileSystem, name string, data []byte, perm os.FileMode)
 // MkdirAll does nothing and returns nil.
 func MkdirAll(fs webdav.FileSystem, path string, perm os.FileMode) error {
 	// Fast path: if we can tell whether path is a directory or file, stop with success or error.
-	dir, err := fs.Stat(path)
+	dir, err := fs.Stat(context.Background(), path)
 	if err == nil {
 		if dir.IsDir() {
 			return nil
@@ -89,10 +90,10 @@ func MkdirAll(fs webdav.FileSystem, path string, perm os.FileMode) error {
 	}
 
 	// Parent now exists; invoke Mkdir and use its result.
-	err = fs.Mkdir(path, perm)
+	err = fs.Mkdir(context.Background(), path, perm)
 	if err != nil {
 		// Handle arguments like "foo/." by double-checking that directory doesn't exist.
-		dir, err1 := fs.Stat(path)
+		dir, err1 := fs.Stat(context.Background(), path)
 		if err1 == nil && dir.IsDir() {
 			return nil
 		}

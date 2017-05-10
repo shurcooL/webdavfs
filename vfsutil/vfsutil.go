@@ -14,7 +14,7 @@ import (
 // Create creates the named file with mode 0644 (before umask), truncating
 // it if it already exists. If successful, methods on the returned
 // File can be used for I/O; the associated file descriptor has mode O_RDWR.
-// If there is an error, it will be of type *PathError.
+// If there is an error, it will be of type *os.PathError.
 func Create(fs webdav.FileSystem, name string) (webdav.File, error) {
 	return fs.OpenFile(context.Background(), name, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
 }
@@ -22,7 +22,7 @@ func Create(fs webdav.FileSystem, name string) (webdav.File, error) {
 // Open opens the named file for reading.  If successful, methods on
 // the returned file can be used for reading; the associated file
 // descriptor has mode O_RDONLY.
-// If there is an error, it will be of type *PathError.
+// If there is an error, it will be of type *os.PathError.
 func Open(fs webdav.FileSystem, name string) (http.File, error) {
 	return fs.OpenFile(context.Background(), name, os.O_RDONLY, 0)
 }

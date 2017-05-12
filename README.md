@@ -15,9 +15,10 @@ go get -u github.com/shurcooL/webdavfs/...
 Directories
 -----------
 
-| Path                                                              | Synopsis                                                                     |
-|-------------------------------------------------------------------|------------------------------------------------------------------------------|
-| [vfsutil](https://godoc.org/github.com/shurcooL/webdavfs/vfsutil) | Package vfsutil implements some I/O utility functions for webdav.FileSystem. |
+| Path                                                                | Synopsis                                                                     |
+|---------------------------------------------------------------------|------------------------------------------------------------------------------|
+| [vfsutil](https://godoc.org/github.com/shurcooL/webdavfs/vfsutil)   | Package vfsutil implements some I/O utility functions for webdav.FileSystem. |
+| [webdavfs](https://godoc.org/github.com/shurcooL/webdavfs/webdavfs) | Package webdavfs implements webdav.FileSystem using an http.FileSystem.      |
 
 License
 -------

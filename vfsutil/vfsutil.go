@@ -38,6 +38,16 @@ func ReadDir(ctx context.Context, fs webdav.FileSystem, name string) ([]os.FileI
 	return f.Readdir(0)
 }
 
+// Stat returns the FileInfo structure describing file.
+func Stat(ctx context.Context, fs webdav.FileSystem, name string) (os.FileInfo, error) {
+	f, err := fs.OpenFile(ctx, name, os.O_RDONLY, 0)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	return f.Stat()
+}
+
 // WriteFile writes data to a file named by name.
 // If the file does not exist, WriteFile creates it with permissions perm;
 // otherwise WriteFile truncates it before writing.

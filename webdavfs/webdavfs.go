@@ -2,10 +2,10 @@
 package webdavfs
 
 import (
+	"context"
 	"net/http"
 	"os"
 
-	"golang.org/x/net/context"
 	"golang.org/x/net/webdav"
 )
 
